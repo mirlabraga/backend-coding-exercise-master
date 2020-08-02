@@ -1,9 +1,12 @@
 
-function Vendor(name, postCode, maxCovers) {
+function Vendor() {
+  this.items = [];
+}
+
+Vendor.prototype.addInfo = function(name, postCode, maxCovers) {
   this.name = name;
   this.postCode = postCode;
   this.maxCovers = maxCovers;
-  this.items = [];
 }
 
 Vendor.prototype.addItem = function(item) {
