@@ -1,0 +1,18 @@
+{
+  "name": "city-pantry",
+  "version": "1.0.0",
+  "description": "City Pantry Project Test",
+  "main": "app.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "City",
+    "Pantry"
+  ],
+  "author": "Mirla Chucre",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^26.2.2"
+  }
+}

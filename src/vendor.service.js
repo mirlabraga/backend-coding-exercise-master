@@ -1,27 +1,18 @@
 const fs = require('fs');
-const readline = require('readline');
 const Vendor = require('./model/vendor');
 const Item = require('./model/item');
+const { readFile } = require('./document.service');
 
-async function readFile(file) {
-  try {
-    const fileStream = fs.createReadStream(file);
-    return readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity
-      });
-  } catch (error) {
-    throw new Error(`[ERROR] a error happend when the application try to read the file ${file}`);
-  }
-}
+async function findByDateLocation(vendors, day, time, location, covers) {
 
-async function findByDateLocation(file, day, time, location, covers) {
-
+  // considered the begin of the postcode start with the minimum a letter
   const patterPostcode = /([A-Za-z]{1,})/gm;
   const patterAdvanceTime = /\d\d/gm;
 
+  // considered the date input formatter is DD/MM/YY
   const splitDate = day.split("/");
   const date = new Date(`${splitDate[1]}/${splitDate[0]}/${splitDate[2]} ${time}`);
+
   const dateNow = new Date(Date.now());
   const diffTime = date.getTime() - dateNow.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 3600 * 24));
@@ -29,7 +20,6 @@ async function findByDateLocation(file, day, time, location, covers) {
 
   try {
 
-    const vendors = await processFile(file);
     const vendorsResultFilter = vendors
       .filter(vendor => Boolean(vendor.postCode.match(patterPostcode)[0] == (location.match(patterPostcode)[0])) &&
       vendor.maxCovers >= covers);
@@ -45,20 +35,20 @@ async function findByDateLocation(file, day, time, location, covers) {
   }
 }
 
-async function processFile(file) {
+async function getVendorsFromFile(file) {
   const readInterface = await readFile(file);
   let vendors = [];
 
   for await (const line of readInterface) {
     if (line) {
       console.log(`[INFO] line information about vendor/item ${line}.`);
-      processLine(line, vendors);
+      createVendor(line, vendors);
     }
   }
   return vendors;
 }
 
-async function processLine(line, vendors) {
+async function createVendor(line, vendors) {
 
   var fields = line.split(';');
 
@@ -113,7 +103,8 @@ async function getItemAvailableByDateLocation(dataInput) {
     throw new Error(validate);
   }
 
-  return await findByDateLocation(file, day, time, location, covers);
+  const vendors = await getVendorsFromFile(file);
+  return await findByDateLocation(vendors, day, time, location, covers);
 }
 
 async function validateInput(day, time, location) {
@@ -139,4 +130,6 @@ async function validateInput(day, time, location) {
   return listValidationError;
 }
 
+exports.createVendor = createVendor;
+exports.findByDateLocation = findByDateLocation;
 exports.getItemAvailableByDateLocation = getItemAvailableByDateLocation;

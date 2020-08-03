@@ -1,4 +1,4 @@
-var controller = require('./controller.js');
+var vendorService = require('./src/vendor.service.js');
 
 function readInputParameters() {
   var args = process.argv.slice(2);
@@ -9,7 +9,12 @@ function readInputParameters() {
 async function main() {
   const dataInput = readInputParameters();
   try {
-    await controller.showItemAvailable(dataInput);
+    const result = await vendorService.getItemAvailableByDateLocation(dataInput);
+    if (result && result.length > 0) {
+      console.log(result);
+    } else {
+      console.log(`[INFO] == no results were found with the input arguments!.==`);
+    }
   } catch (error) {
     console.error(`[ERROR] ${error.message}`);
   }
